@@ -1,0 +1,193 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------------------
+   Design tokens
+
+   Warm ivory paper for reading, bookended top and bottom by a deep
+   charcoal-navy ("night") that stands in for the model's latent space. The
+   hero and the closing contact section live there, carrying an embedding-
+   field graphic in a violet/cyan/amber gradient. Inside the paper sections,
+   violet is the one working interactive color; gold is reserved for quotes
+   and moments of emphasis. Values are raw RGB channels so Tailwind's
+   `<alpha-value>` syntax works (see tailwind.config.js).
+   --------------------------------------------------------------------------- */
+@layer base {
+  :root {
+    --paper: 250 248 243;
+    --surface: 241 237 228;
+    --ink: 18 20 26;
+    --muted: 107 101 88;
+    --faint: 156 148 130;
+    --rule: 228 223 211;
+
+    --accent: 91 61 240; /* signal violet */
+    --gold: 197 144 46; /* darkened for AA contrast on paper */
+    --signal: 47 198 214; /* cyan, embedding-field graphic only */
+
+    --night: 15 16 21;
+    --night-ink: 247 245 240;
+    --night-muted: 169 172 184;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+    font-size: 12.48px;
+    line-height: 1.6;
+  }
+
+  /* Anchor targets clear the fixed header. */
+  [id] {
+    scroll-margin-top: 6rem;
+  }
+
+  ::selection {
+    background-color: rgb(var(--accent) / 0.18);
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Tabular figures wherever numbers need to align (indices, counters). */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* Small tracked-out label used for section rails, sentence case, not
+     shouting. Structural (marks the current section), not decorative. */
+  .eyebrow {
+    @apply text-label text-faint;
+    letter-spacing: 0.1em;
+  }
+
+  .eyebrow-night {
+    @apply text-label text-night-muted;
+    letter-spacing: 0.1em;
+  }
+
+  /* A category chip, used for the evaluation-stage and partner-type lists,
+     in place of a middot-joined string, so the two categories read as
+     visually distinct groups. */
+  .chip {
+    @apply inline-flex items-center rounded-full border px-3 py-1 text-[0.680916rem];
+  }
+
+  .chip-accent {
+    @apply chip border-accent/25 bg-accent/[0.07] text-accent;
+  }
+
+  .chip-gold {
+    @apply chip border-gold/30 bg-gold/[0.08] text-gold;
+  }
+
+  /* Icon badge used ahead of a pillar/mandate title. */
+  .icon-badge {
+    @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-accent/20 bg-accent/[0.06] text-accent;
+  }
+
+  /* Text link: the underline grows in from the left on hover. */
+  .link {
+    @apply relative text-ink transition-colors duration-300;
+    text-decoration: none;
+    background-image: linear-gradient(rgb(var(--ink)), rgb(var(--ink)));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    transition: background-size 0.4s cubic-bezier(0.22, 1, 0.36, 1), color 0.3s;
+  }
+
+  .link:hover,
+  .link:focus-visible {
+    background-size: 100% 1px;
+  }
+
+  /* Same growing-underline mechanic as .link, but in the accent violet. */
+  .link-accent {
+    @apply relative text-ink transition-colors duration-300;
+    text-decoration: none;
+    background-image: linear-gradient(rgb(var(--accent)), rgb(var(--accent)));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    transition: background-size 0.4s cubic-bezier(0.22, 1, 0.36, 1), color 0.3s;
+  }
+
+  .link-accent:hover,
+  .link-accent:focus-visible {
+    @apply text-accent;
+    background-size: 100% 1px;
+  }
+
+  /* Night-mode counterpart, used in the dark hero/contact/footer. */
+  .link-night {
+    @apply relative text-night-ink transition-colors duration-300;
+    text-decoration: none;
+    background-image: linear-gradient(rgb(var(--night-ink)), rgb(var(--night-ink)));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    transition: background-size 0.4s cubic-bezier(0.22, 1, 0.36, 1), color 0.3s;
+  }
+
+  .link-night:hover,
+  .link-night:focus-visible {
+    background-size: 100% 1px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Scroll reveal
+
+   Elements start hidden and are unhidden by useReveal's IntersectionObserver,
+   which sets data-revealed. useReveal reveals everything immediately for
+   visitors who prefer reduced motion, so no separate opt-out class is needed.
+   --------------------------------------------------------------------------- */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+[data-reveal][data-revealed='true'] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Slow ambient pulse on the hero's embedding-field graphic: the one
+   continuous motion in the system, subtle enough to read as "alive" rather
+   than as animation. */
+@keyframes signal-breathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+.signal-node {
+  animation: signal-breathe 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
